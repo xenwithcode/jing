@@ -415,6 +415,13 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
+## 📝 Building JING: The Journey
+
+Read the full story of how I built JING as a carpenter turned AI developer:
+[Building JING on Dev.to](https://dev.to/xenwithcode/building-jing-how-a-carpenter-used-qwen-cloud-to-create-a-multi-agent-ai-system-for-blue-collar-1imh)
+
+---
+
 ## 📬 Contact
 
 - **Author:** Xavier Nunez
