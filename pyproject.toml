@@ -57,9 +57,6 @@ select = ["E", "F", "I", "W"]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
 
-[tool.vercel]
-entrypoint = "src.api.main:app"
-
 [dependency-groups]
 dev = [
     "httpx>=0.28.1",
