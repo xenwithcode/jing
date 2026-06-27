@@ -4,7 +4,7 @@
   "installCommand": "cd frontend && npm install",
   "framework": "vite",
   "rewrites": [
-    { "source": "/(.*)", "destination": "/frontend/dist/index.html" }
+    { "source": "/(.*)", "destination": "/index.html" }
   ],
   "ignore": [
     "src/**",
@@ -13,6 +13,13 @@
     "pyproject.toml",
     "uv.lock",
     "data/**",
-    ".env*"
+    ".env*",
+    ".venv/**",
+    "venv/**",
+    "jing/**",
+    "scripts/**",
+    "deploy/**",
+    "docs/**",
+    "logs/**"
   ]
 }

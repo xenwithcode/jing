@@ -58,7 +58,7 @@ testpaths = ["tests"]
 python_files = ["test_*.py"]
 
 [tool.vercel]
-entrypoint = "src.api.__init__:app"
+entrypoint = "src.api.main:app"
 
 [dependency-groups]
 dev = [
