@@ -7,7 +7,7 @@ import {
   ClockIcon, CheckCircleIcon, ExclamationTriangleIcon,
   ArrowTrendingUpIcon, LightBulbIcon, ChatBubbleLeftRightIcon,
   PaperAirplaneIcon, ShieldCheckIcon,
-  BuildingStorefrontIcon, ArrowPathIcon,
+  BuildingStorefrontIcon, ArrowPathIcon, CpuChipIcon,
 } from '@heroicons/react/24/outline';
 import {
   PieChart, Pie, Cell, ResponsiveContainer, Tooltip,
@@ -573,9 +573,12 @@ export default function DashboardPage() {
   const [suggestion, setSuggestion] = useState<StewardSuggestion | null>(null);
   const [loading, setLoading] = useState(true);
   const [suggestionLoading, setSuggestionLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [loadingElapsed, setLoadingElapsed] = useState(0);
 
   const fetchData = useCallback(async (selectedTrade: string) => {
     setLoading(true);
+    setError(null);
     try {
       const [jobsRes, suggRes] = await Promise.all([
         getArtisanJobs(selectedTrade || undefined),
@@ -586,6 +589,7 @@ export default function DashboardPage() {
       setSuggestion(suggRes.data);
     } catch (err) {
       console.error('Dashboard fetch error:', err);
+      setError('Could not connect to the backend. It may still be waking up — try refreshing in a moment.');
     } finally {
       setLoading(false);
       setSuggestionLoading(false);
@@ -599,6 +603,14 @@ export default function DashboardPage() {
       fetchData(trade);
     }
   }, [trade, isDemo, fetchData]);
+
+  useEffect(() => {
+    if (!loading) return;
+    const interval = setInterval(() => {
+      setLoadingElapsed(prev => prev + 1);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [loading]);
 
   const handleTradeChange = (newTrade: string) => {
     setTrade(newTrade);
@@ -644,20 +656,69 @@ export default function DashboardPage() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {loading ? (
-          <div className="space-y-6">
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-              {[...Array(5)].map((_, i) => (
-                <div key={i} className="bg-gray-900/50 border border-gray-800 rounded-2xl p-5 animate-pulse">
-                  <div className="h-3 bg-gray-700 rounded w-16 mb-3" />
-                  <div className="h-6 bg-gray-700 rounded w-20" />
-                </div>
-              ))}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="flex flex-col items-center justify-center py-20 space-y-6"
+          >
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
+              className="w-16 h-16 rounded-full border-4 border-gray-800 border-t-jing-primary shadow-lg shadow-jing-primary/10"
+            />
+            <div className="text-center max-w-md">
+              <h3 className="text-lg font-bold text-white mb-2">Waking up JING's brain...</h3>
+              <p className="text-sm text-gray-400 leading-relaxed">
+                The backend is waking up from sleep mode. This may take{' '}
+                <span className="text-jing-primary font-semibold">30-60 seconds</span> on the first visit.
+              </p>
+              <div className="mt-4 flex items-center justify-center gap-2 text-xs text-gray-500">
+                <CpuChipIcon className="w-3.5 h-3.5 animate-pulse" />
+                <span>Loading your business data...</span>
+              </div>
             </div>
-            <div className="grid md:grid-cols-2 gap-4">
-              <div className="bg-gray-900/50 border border-gray-800 rounded-2xl p-5 animate-pulse h-64" />
-              <div className="bg-gray-900/50 border border-gray-800 rounded-2xl p-5 animate-pulse h-64" />
+            <div className="w-full max-w-md space-y-3 mt-4">
+              <div className="grid grid-cols-5 gap-3">
+                {[...Array(5)].map((_, i) => (
+                  <div key={i} className="bg-gray-900/50 border border-gray-800 rounded-xl p-3 animate-pulse">
+                    <div className="h-2 bg-gray-700 rounded w-8 mb-2 mx-auto" />
+                    <div className="h-4 bg-gray-700 rounded w-12 mx-auto" />
+                  </div>
+                ))}
+              </div>
+              <div className="grid md:grid-cols-2 gap-3">
+                <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-4 animate-pulse h-32" />
+                <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-4 animate-pulse h-32" />
+              </div>
             </div>
-          </div>
+            {loadingElapsed > 20 && (
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="text-xs text-amber-500/80 mt-2 text-center"
+              >
+                Still loading... The backend may be cold-starting. Please wait a bit longer.
+              </motion.p>
+            )}
+          </motion.div>
+        ) : error ? (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex flex-col items-center justify-center py-20"
+          >
+            <div className="bg-red-900/20 border border-red-800/30 rounded-2xl p-8 max-w-md text-center">
+              <ExclamationTriangleIcon className="w-12 h-12 text-red-400 mx-auto mb-4" />
+              <h3 className="text-lg font-bold text-white mb-2">Connection Issue</h3>
+              <p className="text-sm text-gray-400 leading-relaxed">{error}</p>
+              <button
+                onClick={() => fetchData(trade)}
+                className="mt-6 bg-gradient-to-r from-jing-primary to-red-600 text-white px-6 py-2.5 rounded-xl text-sm font-semibold hover:shadow-lg hover:shadow-jing-primary/20 transition-all"
+              >
+                Try Again
+              </button>
+            </div>
+          </motion.div>
         ) : (
           <>
             {/* Stats Cards */}
